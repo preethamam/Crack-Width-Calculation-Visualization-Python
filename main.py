@@ -10,7 +10,7 @@ from visualize import CrackVisualization
 
 def main():
     # Image path and filename
-    image_path = "crack.bmp"
+    image_path = "images/crack.bmp"
 
     # Perform crack width analysis
     analysis = CrackAnalysis(
@@ -26,7 +26,7 @@ def main():
     binary_crack, binary_skel = analysis.perform_skeletonization()
 
     # Save the binary skeleton image
-    ImageUtils.save_image(binary_skel, "binary_skel.png")
+    ImageUtils.save_image(binary_skel, "images/binary_skel.png")
 
     # Calculate orientations
     (
