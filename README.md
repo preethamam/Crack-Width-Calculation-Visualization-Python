@@ -8,7 +8,12 @@ Calculates the crack width based on the ellipse major axis orientation and Bresa
 | ![](assets/crack.bmp) | ![](assets/thumbnail_01.png) | ![](assets/thumbnail_02.png) |
 
 # Requirements
-MATLAB
+Python > 3.12 \
+matplotlib==3.9.2 \
+numpy==2.1.3 \
+Pillow==11.0.0 \
+scipy==1.14.1 \
+skimage==0.0
 
 # Citation
 Crack width calulation and comprehensive visualization code is available to the public. If you use this code in your research, please use the following BibTeX entry to cite:
