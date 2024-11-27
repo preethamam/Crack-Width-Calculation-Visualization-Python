@@ -8,6 +8,29 @@ from crackutils import CrackWidthUtils
 
 
 class CrackAnalysis:
+    """
+    A class to perform crack width analysis on binary images.
+
+    Attributes:
+        image_path (str): Path to the image file.
+        method (str): Skeletonization method.
+        pixel_scale (float): Scale of the pixels.
+        mov_window_size (int): Moving window size for smoothing.
+        skel_orient_block_size (int): Block size for skeleton orientation calculation.
+        print_results (bool): Flag to print results.
+        binary_crack (np.ndarray): Binary image of the crack.
+        binary_skel (np.ndarray): Binary image of the crack skeleton.
+        orientations (np.ndarray): Array of crack orientations.
+        onormal90 (np.ndarray): Array of normal orientations at 90 degrees.
+        onormal270 (np.ndarray): Array of normal orientations at 270 degrees.
+        onr_orient (np.ndarray): Array of crack orientations (row).
+        onc_orient (np.ndarray): Array of crack orientations (column).
+        onr90 (np.ndarray): Array of normal orientations at 90 degrees (row).
+        onc90 (np.ndarray): Array of normal orientations at 90 degrees (column).
+        onr270 (np.ndarray): Array of normal orientations at 270 degrees (row).
+        onc270 (np.ndarray): Array of normal orientations at 270 degrees (column).
+    """
+
     def __init__(
         self,
         image_path,
@@ -17,6 +40,17 @@ class CrackAnalysis:
         skel_orient_block_size=5,
         print_results=True,
     ):
+        """
+        Initializes the CrackAnalysis class.
+
+        Args:
+            image_path (str): Path to the image file.
+            method (str): Skeletonization method.
+            pixel_scale (float): Scale of the pixels.
+            mov_window_size (int): Moving window size for smoothing.
+            skel_orient_block_size (int): Block size for skeleton orientation calculation.
+            print_results (bool): Flag to print results.
+        """
         self.image_path = image_path
         self.method = method
         self.pixel_scale = pixel_scale
@@ -33,9 +67,15 @@ class CrackAnalysis:
         self.onr90 = None
         self.onc90 = None
         self.onr270 = None
-        self.onc270 = None    
+        self.onc270 = None
 
     def perform_skeletonization(self):
+        """
+        Performs skeletonization on the binary crack image.
+
+        Returns:
+            tuple: Binary crack image and binary skeleton image.
+        """
         if self.method == "zhang":
             self.binary_skel = skeletonize(self.binary_crack > 0)
         elif self.method == "lee":
@@ -49,8 +89,14 @@ class CrackAnalysis:
                 f"Invalid skeletonization method: {self.method}. Choose 'lee' or 'medial_axis'."
             )
         return self.binary_crack, self.binary_skel
-    
+
     def calculate_orientations(self):
+        """
+        Calculates the orientations of the crack skeleton.
+
+        Returns:
+            tuple: Orientations and normal orientations at 90 and 270 degrees.
+        """
         self.orientations = CrackWidthUtils.skeletonorientation(
             self.binary_skel, self.skel_orient_block_size
         )
@@ -66,6 +112,12 @@ class CrackAnalysis:
         return self.orientations, self.onormal90, self.onormal270, self.onr_orient, self.onc_orient, self.onr90, self.onc90, self.onr270, self.onc270
 
     def extract_crack_width(self):
+        """
+        Extracts the crack width using the orientations.
+
+        Returns:
+            tuple: Bresenham line coordinates, cell data, row indices, and column indices.
+        """
         row, col = np.where(self.binary_skel)
         angle_1 = [self.onormal90[i][j] for i, j in zip(row, col)]
         angle_2 = [self.onormal270[i][j] for i, j in zip(row, col)]
@@ -89,6 +141,15 @@ class CrackAnalysis:
         return xybresenham, mycell, row, col
 
     def calculate_crack_width_bresenham(self, xybresenham):
+        """
+        Calculates the crack width using Bresenham's algorithm.
+
+        Args:
+            xybresenham (np.ndarray): Bresenham line coordinates.
+
+        Returns:
+            tuple: Crack width and Bresenham cell data.
+        """
         bresenham_cell = [[None, None] for _ in range(len(xybresenham))]
         crack_width_bresenham = np.zeros(len(xybresenham))
 
@@ -106,6 +167,16 @@ class CrackAnalysis:
         return crack_width_bresenham, bresenham_cell
 
     def crack_metrics(self, crack_width_bresenham, bresenham_cell):
+        """
+        Calculates various crack metrics.
+
+        Args:
+            crack_width_bresenham (np.ndarray): Crack width data.
+            bresenham_cell (list): Bresenham cell data.
+
+        Returns:
+            tuple: Scaled crack width, crack length, minimum crack width, maximum crack width, average crack width, standard deviation of crack width, and RMS crack width.
+        """
         crack_width_scaled = crack_width_bresenham * self.pixel_scale
         crack_length_scaled = len(np.flatnonzero(self.binary_skel)) * self.pixel_scale
         crack_width_scaled = uniform_filter1d(

@@ -9,6 +9,9 @@ from visualize import CrackVisualization
 
 
 def main():
+    """
+    Main function to perform crack width analysis and visualization.
+    """
     # Image path and filename
     image_path = "images/crack.bmp"
 

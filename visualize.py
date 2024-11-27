@@ -6,6 +6,54 @@ from utils import ImageManipulation
 
 
 class CrackVisualization:
+    """
+    A class to visualize crack width and related properties in binary images.
+
+    Attributes:
+        binary_crack (np.ndarray): Binary image of the crack.
+        binary_skel (np.ndarray): Binary image of the crack skeleton.
+        orientations (np.ndarray): Array of crack orientations.
+        onormal90 (np.ndarray): Array of normal orientations at 90 degrees.
+        onormal270 (np.ndarray): Array of normal orientations at 270 degrees.
+        onc_orient (np.ndarray): Array of crack orientations (column).
+        onr_orient (np.ndarray): Array of crack orientations (row).
+        onc90 (np.ndarray): Array of normal orientations at 90 degrees (column).
+        onr90 (np.ndarray): Array of normal orientations at 90 degrees (row).
+        onc270 (np.ndarray): Array of normal orientations at 270 degrees (column).
+        onr270 (np.ndarray): Array of normal orientations at 270 degrees (row).
+        bresenham_cell (list): List of Bresenham line cells.
+        crack_width_scaled (np.ndarray): Array of scaled crack widths.
+        row (np.ndarray): Array of row indices for crack centerline.
+        col (np.ndarray): Array of column indices for crack centerline.
+        crack_width_black_background (bool): Flag to use black background for crack width visualization.
+        crack_index (int): Index of the crack to visualize.
+
+    Methods:
+        binary_and_skeleton_plot():
+            Plots the binary image and the crack skeleton.
+        crack_width_histogram():
+            Displays a histogram of the crack thickness.
+        crack_width_pdf():
+            Displays the Probability Density Function (PDF) of the crack thickness.
+        crack_width_cdf():
+            Displays the Cumulative Distribution Function (CDF) of the crack thickness.
+        crack_centerline():
+            Displays the crack centerline on the binary image.
+        crack_distance_map():
+            Displays the crack distance map.
+        crack_normals():
+            Overlays the crack normals on the binary image.
+        crack_width_variation():
+            Visualizes the variation in crack width.
+        crack_width_variation_centerline():
+            Visualizes the variation in crack width along the centerline.
+        crack_orientation_variation():
+            Visualizes the variation in crack orientation along the centerline.
+        single_crack_width_visualization():
+            Visualizes the rasterization of a single crack width.
+        dynamic_crackline_movie():
+            Creates a dynamic movie of the crack width lines.
+    """
 
     def __init__(
         self,
@@ -27,6 +75,28 @@ class CrackVisualization:
         crack_width_black_background=False,
         crack_index=10
     ):
+        """
+        Initializes the CrackVisualization class.
+
+        Args:
+            binary_crack (np.ndarray): Binary image of the crack.
+            binary_skel (np.ndarray): Binary image of the crack skeleton.
+            orientations (np.ndarray): Array of crack orientations.
+            onormal90 (np.ndarray): Array of normal orientations at 90 degrees.
+            onormal270 (np.ndarray): Array of normal orientations at 270 degrees.
+            onc_orient (np.ndarray): Array of crack orientations (column).
+            onr_orient (np.ndarray): Array of crack orientations (row).
+            onc90 (np.ndarray): Array of normal orientations at 90 degrees (column).
+            onr90 (np.ndarray): Array of normal orientations at 90 degrees (row).
+            onc270 (np.ndarray): Array of normal orientations at 270 degrees (column).
+            onr270 (np.ndarray): Array of normal orientations at 270 degrees (row).
+            bresenham_cell (list): List of Bresenham line cells.
+            crack_width_scaled (np.ndarray): Array of scaled crack widths.
+            row (np.ndarray): Array of row indices for crack centerline.
+            col (np.ndarray): Array of column indices for crack centerline.
+            crack_width_black_background (bool): Flag to use black background for crack width visualization.
+            crack_index (int): Index of the crack to visualize.
+        """
         self.binary_crack = binary_crack
         self.binary_skel = binary_skel
         self.orientations = orientations
@@ -62,7 +132,9 @@ class CrackVisualization:
                 )
 
     def binary_and_skeleton_plot(self):
-        # Plot the skeleton and the binary image
+        """
+        Plots the binary image and the crack skeleton.
+        """
         fig, axes = plt.subplots(
             nrows=1, ncols=2, sharex=True, sharey=True, figsize=(8, 8)
         )
@@ -80,7 +152,9 @@ class CrackVisualization:
         plt.show()
 
     def crack_width_histogram(self):
-        # Display histogram
+        """
+        Displays a histogram of the crack thickness.
+        """
         plt.figure()
         plt.hist(self.crack_width_scaled, bins=30)
         plt.title("Histogram of the crack thickness")
@@ -90,7 +164,9 @@ class CrackVisualization:
         plt.show()
 
     def crack_width_pdf(self):
-        # Display PDF
+        """
+        Displays the Probability Density Function (PDF) of the crack thickness.
+        """
         kde = gaussian_kde(self.crack_width_scaled, bw_method="silverman")
         xi = np.linspace(0, max(self.crack_width_scaled), 100)
         f = kde(xi)
@@ -103,7 +179,9 @@ class CrackVisualization:
         plt.show()
 
     def crack_width_cdf(self):
-        # Display CDF
+        """
+        Displays the Cumulative Distribution Function (CDF) of the crack thickness.
+        """
         plt.figure()
         sorted_data = np.sort(self.crack_width_scaled)
         cdf = np.arange(len(sorted_data)) / float(len(sorted_data) - 1)
@@ -115,7 +193,9 @@ class CrackVisualization:
         plt.show()
 
     def crack_centerline(self):
-        # Display crack centerline
+        """
+        Displays the crack centerline on the binary image.
+        """
         plt.figure()
         plt.imshow(self.binary_crack, cmap="gray", interpolation="none")
         plt.scatter(self.col, self.row, c="r", s=1)
@@ -124,17 +204,15 @@ class CrackVisualization:
         plt.show()
 
     def crack_distance_map(self):
-        # Find distance map
-        # Create meshgrid for X and Y
+        """
+        Displays the crack distance map.
+        """
         yy, xx = np.arange(self.binary_crack.shape[0]), np.arange(
             self.binary_crack.shape[1]
         )
         X, Y = np.meshgrid(xx, yy)
-
-        # Calculate crack distance map values
         crackDistmapValues = self.binary_crack * (X + Y)
 
-        # Plot the distance map
         plt.figure()
         img = plt.imshow(
             crackDistmapValues, cmap=self.custom_cmap, interpolation="none"
@@ -142,17 +220,15 @@ class CrackVisualization:
         plt.axis("equal")
         plt.axis("tight")
         plt.axis("off")
-
-        # Add the colorbar and set its label
         cbar = plt.colorbar(img)
         cbar.set_label("Crack Distance Measure")
-
-        # Overlay additional features
         plt.scatter(self.col, self.row, color=[0.5, 0.5, 0.5], s=1)
         plt.show()
 
     def crack_normals(self):
-        # Overlay normals to verify
+        """
+        Overlays the crack normals on the binary image.
+        """
         plt.figure()
         plt.imshow(self.binary_crack, cmap="gray")
         plt.scatter(self.col, self.row, c="g", s=1)
@@ -186,7 +262,9 @@ class CrackVisualization:
         plt.show()
 
     def crack_width_variation(self):
-        # Plot the crack width factor
+        """
+        Visualizes the variation in crack width.
+        """
         if self.crack_width_black_background:
             plt.figure()
             plt.imshow(
@@ -198,53 +276,48 @@ class CrackVisualization:
             plt.axis("off")
             plt.show()
         else:
-            # Black background with white crack width region
             binary_crack_duplicate = self.binary_crack.copy()
             bw_width_factor = self.bw_width_factor * (
                 self.bw_width_factor > 0
-            )  # Ensure non-negative values
+            )
 
-            # Define the colormap: black and jet
             jet_cmap = plt.cm.jet(np.linspace(0, 1, 255))[:, :3]
-            cmap = np.vstack(([0, 0, 0], jet_cmap))  # Add black as the first color
+            cmap = np.vstack(([0, 0, 0], jet_cmap))
 
-            # Normalize bw_width_factor to map to colormap indices
             Norm_BWWF = bw_width_factor.copy()
-            min_val = np.min(Norm_BWWF[Norm_BWWF > 0])  # Minimum non-zero value
+            min_val = np.min(Norm_BWWF[Norm_BWWF > 0])
             max_val = np.max(Norm_BWWF)
 
             Norm_BWWF = (
                 (Norm_BWWF - min_val) / (max_val - min_val) * (len(cmap) - 1)
             ).astype(int)
-            Norm_BWWF[bw_width_factor == 0] = 0  # Ensure zero values map to black
+            Norm_BWWF[bw_width_factor == 0] = 0
 
-            # Convert normalized values to RGB image
             imgsc_im = cmap[Norm_BWWF]
 
-            # Create mask for pixels in BW4 but with zero width factor
             MaskBW = np.repeat(
                 (binary_crack_duplicate > 0) & (bw_width_factor == 0), 3
             ).reshape(self.binary_crack.shape + (3,))
-            imgsc_im[MaskBW] = 1  # Assign white to these pixels
+            imgsc_im[MaskBW] = 1
 
-            # Plot the resulting image
-            plt.figure(figsize=(8, 6))
+            plt.figure()
             plt.imshow(imgsc_im)
             plt.axis("equal")
             plt.axis("off")
             plt.title("Crack width variation visualization")
 
-            # Add colorbar with jet colormap
             sm = plt.cm.ScalarMappable(
                 cmap="jet", norm=Normalize(vmin=min_val, vmax=max_val)
             )
-            sm.set_array([])  # Set the array explicitly
-            cbar = plt.colorbar(sm, ax=plt.gca())  # Tie colorbar to the current Axes
+            sm.set_array([])
+            cbar = plt.colorbar(sm, ax=plt.gca())
             cbar.set_label("Crack Width")
             plt.show()
 
     def crack_width_variation_centerline(self):
-        # Plot the crack width factor center line
+        """
+        Visualizes the variation in crack width along the centerline.
+        """
         bw_width_factorCL = self.binary_skel * self.bw_width_factor
         plt.figure()
         plt.imshow(bw_width_factorCL, cmap=self.custom_cmap, interpolation="none")
@@ -255,11 +328,12 @@ class CrackVisualization:
         plt.show()
 
     def crack_orientation_variation(self):
-        # Crack tangential and normal orientations
+        """
+        Visualizes the variation in crack orientation along the centerline.
+        """
         CLOTangential = self.binary_skel * np.abs(self.orientations)
         CLOnormal = self.onormal90
 
-        # Plot the skeleton and the binary image
         fig, axes = plt.subplots(nrows=1, ncols=2, sharex=True, sharey=True)
         ax = axes.ravel()
 
@@ -276,23 +350,21 @@ class CrackVisualization:
         plt.show()
 
     def single_crack_width_visualization(self):
-        # Single crack width visualization
+        """
+        Visualizes the rasterization of a single crack width.
+        """
         single_crack_width = np.zeros_like(self.binary_crack, dtype=bool)
 
-        # Overlay the first mask
         crackCL = ImageManipulation.imoverlay(
             self.binary_crack, self.binary_skel, [1, 0, 0]
         )
 
-        # Extract the crack index
         x_bresenham = self.bresenham_cell[self.crack_index][0]
         y_bresenham = self.bresenham_cell[self.crack_index][1]
 
-        # Set the crack width pixels to True
         for j in range(len(x_bresenham)):
             single_crack_width[y_bresenham[j], x_bresenham[j]] = True
 
-        # Overlay the crack width visualization
         crackWidthStrand = ImageManipulation.imoverlay(
             crackCL, single_crack_width, [0, 0, 1]
         )
@@ -303,22 +375,23 @@ class CrackVisualization:
         plt.axis("equal")
         plt.axis("off")
         plt.show()
-        
+
     def dynamic_crackline_movie(self):
-        # Create overlay with binarySkeleton in green on top of binaryCrack
+        """
+        Creates a dynamic movie of the crack width lines.
+        """
         greenCL = ImageManipulation.imoverlay(self.binary_crack, self.binary_skel, [0, 1, 0])
 
         plt.figure()
         plt.imshow(greenCL)
         plt.title('Crack width lines movie')
         plt.axis('off')
-        plt.show(block=False)  # Show image without blocking further updates
+        plt.show(block=False)
 
-        # Plot Bresenham lines on the overlay
         for m in range(len(self.bresenham_cell)):
             xnew_array, ynew_array = self.bresenham_cell[m]
             plt.plot(xnew_array, ynew_array)
             plt.draw()
-            plt.pause(0.000001)  # Pause for visual effect
+            plt.pause(0.000001)
 
-        plt.show()  # Show the final image
+        plt.show()

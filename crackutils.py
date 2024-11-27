@@ -4,6 +4,9 @@ from skimage.measure import regionprops
 import math
 
 class CrackWidthUtils:
+    """
+    A utility class for crack width calculations.
+    """
     @staticmethod
     def bresenham(x1, y1, x2, y2):
         """
@@ -58,16 +61,14 @@ class CrackWidthUtils:
         """
         Determines the crack width location given a starting point, angle, and binary image.
 
-        Parameters:
-        x, y: Starting pixel coordinates.
-        angle: Angle in degrees.
-        BW: Binary image as a 2D NumPy array.
+        Args:
+            x (int): Starting x-coordinate.
+            y (int): Starting y-coordinate.
+            angle (float): Angle in degrees.
+            BW (np.ndarray): Binary image.
 
         Returns:
-        mycell: A dictionary with two keys:
-            'x': List of x-coordinates.
-            'y': List of y-coordinates.
-
+            dict: Dictionary with 'x' and 'y' keys containing lists of coordinates.
         """
         # Variables initialization
         line_length = 1
@@ -88,7 +89,6 @@ class CrackWidthUtils:
                     xnew_width1 = x + line_length
                     ynew_width1 = y
 
-        # Image size limit conditions check
             if ynew_width1 <= 0:
                 ynew_width1 = 0
                 yzeroflag = 1
@@ -102,18 +102,15 @@ class CrackWidthUtils:
                 xnew_width1 = BW.shape[1] - 1
                 xmaxflag = 1
 
-            # Store location values
             xnew_array.append(xnew_width1)
             ynew_array.append(ynew_width1)
 
-            # Break statement
             if (BW[ynew_width1, xnew_width1] == 0 or 
                 yzeroflag == 1 or xzeroflag == 1 or 
                 ymaxflag == 1 or xmaxflag == 1 or 
                 line_length > max(BW.shape)):
                 break
-            
-            # Line increment
+
             line_length += 1
 
         return {'x': xnew_array, 'y': ynew_array}
@@ -122,17 +119,14 @@ class CrackWidthUtils:
     def skeletonorientation(skel, blksz=None):
         """
         Calculate the local orientation of a skeleton.
-            Parameters:
-        skel: 2D binary skeleton image (numpy array of type bool).
-        blksz: Size of block to look around for local orientation.
-            Can be [row x col] block size or a scalar for square block.
-            Defaults to [5, 5].
+
+        Args:
+            skel (np.ndarray): 2D binary skeleton image.
+            blksz (int or list, optional): Size of block to look around for local orientation.
 
         Returns:
-        Orientations: Image of the same size as `skel` with zeros outside of 
-                    the skeleton and orientations elsewhere.
+            np.ndarray: Image of the same size as `skel` with orientations.
         """
-        # Error checking
         assert skel.dtype == bool, "skel should be a boolean array."
         assert skel.ndim == 2, "skel should be a 2D matrix."
         

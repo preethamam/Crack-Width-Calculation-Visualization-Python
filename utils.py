@@ -3,18 +3,22 @@ from skimage import img_as_ubyte, img_as_float
 from PIL import Image
 
 class ImageManipulation:
+    """
+    A utility class for image manipulation.
+    """
+
     @staticmethod
     def imoverlay(image, mask, color=[1, 1, 1]):
         """
         Create a mask-based image overlay.
-        
-                Parameters:
-        - image: Input image, grayscale or RGB. Can be uint8, uint16, int16, float, or double.
-        - mask: 2D binary mask (logical array).
-        - color: 1x3 list of RGB values in the range [0, 1].
+
+        Args:
+            image (np.ndarray): Input image, grayscale or RGB. Can be uint8, uint16, int16, float, or double.
+            mask (np.ndarray): 2D binary mask (logical array).
+            color (list): 1x3 list of RGB values in the range [0, 1].
 
         Returns:
-        - overlay: Output RGB image with the mask locations colored.    
+            np.ndarray: Output RGB image with the mask locations colored.
         """
         mask = mask.astype(bool)
 
@@ -45,14 +49,20 @@ class ImageManipulation:
         out_blue[mask] = color_uint8[2]
 
         return np.stack([out_red, out_green, out_blue], axis=-1)
-    
-    
-# save a image using extension
+
 class ImageUtils:
+    """
+    A utility class for saving images.
+    """
+
     @staticmethod
     def save_image(image, filename):
         """
         Save an image to disk.
+
+        Args:
+            image (np.ndarray): Image to be saved.
+            filename (str): Path to save the image.
         """
         im = Image.fromarray(image)
-        im.save(filename)   
+        im.save(filename)
