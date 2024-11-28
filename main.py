@@ -7,22 +7,30 @@ from crackwidth import CrackAnalysis
 from utils import ImageUtils
 from visualize import CrackVisualization
 
+from constants import (
+    IMAGE_PATH,
+    METHOD,
+    PIXEL_SCALE,
+    MOV_WINDOW_SIZE,
+    MOV_WINDOW_TYPE,
+    SKEL_ORIENT_BLOCK_SIZE,
+    PRINT_RESULTS,
+)
+
 
 def main():
     """
     Main function to perform crack width analysis and visualization.
     """
-    # Image path and filename
-    image_path = "images/crack.bmp"
-
     # Perform crack width analysis
     analysis = CrackAnalysis(
-        image_path,
-        method="zhang",
-        pixel_scale=1,
-        mov_window_size=5,
-        skel_orient_block_size=5,
-        print_results=True,
+        image_path=IMAGE_PATH,
+        method=METHOD,
+        pixel_scale=PIXEL_SCALE,
+        mov_window_size=MOV_WINDOW_SIZE,
+        mov_window_type=MOV_WINDOW_TYPE,
+        skel_orient_block_size=SKEL_ORIENT_BLOCK_SIZE,
+        print_results=PRINT_RESULTS,
     )
 
     # Perform skeletonization

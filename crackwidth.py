@@ -1,8 +1,7 @@
-from scipy.ndimage import uniform_filter1d
+import numpy as np
+from scipy.ndimage import median_filter, uniform_filter1d
 from skimage.io import imread
 from skimage.morphology import medial_axis, skeletonize
-
-import numpy as np
 
 from crackutils import CrackWidthUtils
 
@@ -16,6 +15,7 @@ class CrackAnalysis:
         method (str): Skeletonization method.
         pixel_scale (float): Scale of the pixels.
         mov_window_size (int): Moving window size for smoothing.
+        mov_window_type (str): Moving window type for smoothing.
         skel_orient_block_size (int): Block size for skeleton orientation calculation.
         print_results (bool): Flag to print results.
         binary_crack (np.ndarray): Binary image of the crack.
@@ -33,10 +33,11 @@ class CrackAnalysis:
 
     def __init__(
         self,
-        image_path,
+        image_path: str = None,
         method="zhang",
         pixel_scale=1,
         mov_window_size=5,
+        mov_window_type="mean",
         skel_orient_block_size=5,
         print_results=True,
     ):
@@ -48,6 +49,7 @@ class CrackAnalysis:
             method (str): Skeletonization method.
             pixel_scale (float): Scale of the pixels.
             mov_window_size (int): Moving window size for smoothing.
+            mov_window_type (str): Moving window type for smoothing.
             skel_orient_block_size (int): Block size for skeleton orientation calculation.
             print_results (bool): Flag to print results.
         """
@@ -55,6 +57,7 @@ class CrackAnalysis:
         self.method = method
         self.pixel_scale = pixel_scale
         self.mov_window_size = mov_window_size
+        self.mov_window_type = mov_window_type
         self.skel_orient_block_size = skel_orient_block_size
         self.print_results = print_results
         self.binary_crack = imread(image_path, as_gray=True) > 0
@@ -108,8 +111,18 @@ class CrackAnalysis:
         self.onc90 = np.cos(np.radians(self.onormal90))
         self.onr270 = np.sin(np.radians(self.onormal270))
         self.onc270 = np.cos(np.radians(self.onormal270))
-        
-        return self.orientations, self.onormal90, self.onormal270, self.onr_orient, self.onc_orient, self.onr90, self.onc90, self.onr270, self.onc270
+
+        return (
+            self.orientations,
+            self.onormal90,
+            self.onormal270,
+            self.onr_orient,
+            self.onc_orient,
+            self.onr90,
+            self.onc90,
+            self.onr270,
+            self.onc270,
+        )
 
     def extract_crack_width(self):
         """
@@ -179,9 +192,14 @@ class CrackAnalysis:
         """
         crack_width_scaled = crack_width_bresenham * self.pixel_scale
         crack_length_scaled = len(np.flatnonzero(self.binary_skel)) * self.pixel_scale
-        crack_width_scaled = uniform_filter1d(
-            crack_width_scaled, size=self.mov_window_size
-        )
+        if self.mov_window_type == "mean":
+            crack_width_scaled = uniform_filter1d(
+                crack_width_scaled, size=self.mov_window_size
+            )
+        else:
+            crack_width_scaled = median_filter(
+                crack_width_scaled, size=self.mov_window_size
+            )
 
         min_crack_width = np.min(crack_width_scaled)
         max_crack_width = np.max(crack_width_scaled)
