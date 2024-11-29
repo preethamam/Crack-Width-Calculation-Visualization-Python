@@ -188,7 +188,8 @@ class CrackAnalysis:
             bresenham_cell (list): Bresenham cell data.
 
         Returns:
-            tuple: Scaled crack width, crack length, minimum crack width, maximum crack width, average crack width, standard deviation of crack width, and RMS crack width.
+            tuple: Scaled crack width, crack length, minimum crack width, maximum crack width, 
+            average crack width, standard deviation of crack width, and RMS crack width.
         """
         crack_width_scaled = crack_width_bresenham * self.pixel_scale
         crack_length_scaled = len(np.flatnonzero(self.binary_skel)) * self.pixel_scale
