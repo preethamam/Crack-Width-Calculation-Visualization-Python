@@ -1,4 +1,5 @@
 import numpy as np
+from numba import jit
 from scipy.ndimage import median_filter, uniform_filter1d
 from skimage.io import imread
 from skimage.morphology import medial_axis, skeletonize
@@ -33,7 +34,9 @@ class CrackAnalysis:
 
     def __init__(
         self,
-        image_path: str = None,
+        image_path: str=None,
+        binary_crack=None,
+        binary_skel=None,
         method="zhang",
         pixel_scale=1,
         mov_window_size=5,
@@ -60,8 +63,8 @@ class CrackAnalysis:
         self.mov_window_type = mov_window_type
         self.skel_orient_block_size = skel_orient_block_size
         self.print_results = print_results
-        self.binary_crack = imread(image_path, as_gray=True) > 0
-        self.binary_skel = None
+        self.binary_crack = binary_crack if not image_path else imread(image_path, as_gray=True) > 0
+        self.binary_skel = binary_skel
         self.orientations = None
         self.onormal90 = None
         self.onormal270 = None

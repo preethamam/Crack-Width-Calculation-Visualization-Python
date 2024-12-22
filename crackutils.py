@@ -1,12 +1,14 @@
 import numpy as np
-from scipy.ndimage import label, generate_binary_structure
+from scipy.ndimage import label
 from skimage.measure import regionprops
 import math
+
 
 class CrackWidthUtils:
     """
     A utility class for crack width calculations.
     """
+
     @staticmethod
     def bresenham(x1, y1, x2, y2):
         """
@@ -20,7 +22,7 @@ class CrackWidthUtils:
         """
         # Round the inputs to ensure integer coordinates
         x1, y1, x2, y2 = map(round, [x1, y1, x2, y2])
-        
+
         # Calculate differences
         dx = abs(x2 - x1)
         dy = abs(y2 - y1)
@@ -35,7 +37,7 @@ class CrackWidthUtils:
         # Determine the direction of the line
         sx = 1 if x1 < x2 else -1
         sy = 1 if y1 < y2 else -1
-        
+
         # Core algorithm
         err = dx // 2
         x, y = [], []
@@ -55,7 +57,7 @@ class CrackWidthUtils:
             x1 += sx
 
         return np.array(x), np.array(y)
-    
+
     @staticmethod
     def crackwidthlocation(x, y, angle, BW):
         """
@@ -79,7 +81,9 @@ class CrackWidthUtils:
         # Loop through pixels
         while True:
             if angle != 180 and angle != 360:
-                xnew_width1 = int(np.floor(x + line_length * -np.cos(np.radians(angle))))
+                xnew_width1 = int(
+                    np.floor(x + line_length * -np.cos(np.radians(angle)))
+                )
                 ynew_width1 = int(np.floor(y + line_length * np.sin(np.radians(angle))))
             else:
                 if angle == 180:
@@ -105,15 +109,19 @@ class CrackWidthUtils:
             xnew_array.append(xnew_width1)
             ynew_array.append(ynew_width1)
 
-            if (BW[ynew_width1, xnew_width1] == 0 or 
-                yzeroflag == 1 or xzeroflag == 1 or 
-                ymaxflag == 1 or xmaxflag == 1 or 
-                line_length > max(BW.shape)):
+            if (
+                BW[ynew_width1, xnew_width1] == 0
+                or yzeroflag == 1
+                or xzeroflag == 1
+                or ymaxflag == 1
+                or xmaxflag == 1
+                or line_length > max(BW.shape)
+            ):
                 break
 
             line_length += 1
 
-        return {'x': xnew_array, 'y': ynew_array}
+        return {"x": xnew_array, "y": ynew_array}
 
     @staticmethod
     def skeletonorientation(skel, blksz=None):
@@ -129,7 +137,7 @@ class CrackWidthUtils:
         """
         assert skel.dtype == bool, "skel should be a boolean array."
         assert skel.ndim == 2, "skel should be a 2D matrix."
-        
+
         if blksz is None:
             blksz = [5, 5]
         else:
@@ -147,9 +155,12 @@ class CrackWidthUtils:
 
         # Pad the array
         pad_amount = [x // 2 for x in blksz]
-        skel_pad = np.pad(skel, ((pad_amount[0], pad_amount[0]), 
-                                (pad_amount[1], pad_amount[1])), 
-                        mode='constant', constant_values=0)
+        skel_pad = np.pad(
+            skel,
+            ((pad_amount[0], pad_amount[0]), (pad_amount[1], pad_amount[1])),
+            mode="constant",
+            constant_values=0,
+        )
 
         # Preallocate orientations
         orientations = np.zeros(sz)
@@ -157,14 +168,14 @@ class CrackWidthUtils:
         # Offset values
         row_high = row + blksz[0] - 1
         col_high = col + blksz[1] - 1
-        center = (pad_amount[0], pad_amount[1]) 
+        center = (pad_amount[0], pad_amount[1])
 
-        s = generate_binary_structure(2,2)
-        
+        s = np.array([[True, True, True], [True, True, True], [True, True, True]])
+
         # Process each skeleton pixel
         for i in range(npts):
             # Extract small block
-            block = skel_pad[row[i]:row_high[i] + 1, col[i]:col_high[i] + 1]
+            block = skel_pad[row[i] : row_high[i] + 1, col[i] : col_high[i] + 1]
 
             # Label connected components
             labeled_block, _ = label(block, structure=s)
