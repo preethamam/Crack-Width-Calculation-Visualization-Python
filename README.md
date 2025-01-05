@@ -3,12 +3,11 @@ Calculates the crack width based on the ellipse major axis orientation and Bresa
 
 # Quick Pipeline Visualization
 ## Example: Crack width visualization
-| Image type | Image sample |
+| Crack |  Distance map |
 | ------------- | ------------- |
-| Crack | ![](assets/crack.png) | 
-| Distance map |![](assets/thumbnail_01.png) |
-| Crack width | ![](assets/thumbnail_02.png) |
-| Crack closeup | ![](assets/thumbnail_03.png) |
+| ![](assets/crack.png) | ![](assets/thumbnail_01.png) |
+| Crack width   | Crack closeup |
+| ![](assets/thumbnail_02.png) | ![](assets/thumbnail_03.png) |
 
 # Requirements
 Python > 3.12 \
