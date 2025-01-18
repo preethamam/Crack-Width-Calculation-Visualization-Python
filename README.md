@@ -16,7 +16,15 @@ matplotlib==3.9.2 \
 numpy==2.1.3 \
 Pillow==11.0.0 \
 scipy==1.14.1 \
-skimage==0.0
+skimage==0.0 \
+pyafmm
+
+Install the required Python packages:
+    ```sh
+    pip install -r requirements.txt
+    ```
+
+To install the `pyafmm` module. Please follow the instructions in the `Readme.md` file located in [pyafmm](/pyafmm/) folder.
 
 # Citation
 Crack width calulation and comprehensive visualization code is available to the public. If you use this code in your research, please use the following BibTeX entry to cite:

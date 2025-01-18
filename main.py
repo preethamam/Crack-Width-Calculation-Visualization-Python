@@ -1,21 +1,15 @@
-import time
+import os
 import sys
+import time
 
 sys.dont_write_bytecode = True
+sys.path.insert(1, os.getcwd())
 
-from crackwidth import CrackAnalysis
-from utils import ImageUtils
-from visualize import CrackVisualization
-
-from constants import (
-    IMAGE_PATH,
-    METHOD,
-    PIXEL_SCALE,
-    MOV_WINDOW_SIZE,
-    MOV_WINDOW_TYPE,
-    SKEL_ORIENT_BLOCK_SIZE,
-    PRINT_RESULTS,
-)
+from constants import (IMAGE_PATH, METHOD, PRUNE_THRESHOLD, MOV_WINDOW_SIZE, MOV_WINDOW_TYPE,
+                       PIXEL_SCALE, PRINT_RESULTS, SKEL_ORIENT_BLOCK_SIZE)
+from crackprops.crackwidth import CrackAnalysis
+from crackprops.utils import ImageUtils
+from crackprops.visualize import CrackVisualization
 
 
 def main():
@@ -26,6 +20,7 @@ def main():
     analysis = CrackAnalysis(
         image_path=IMAGE_PATH,
         method=METHOD,
+        prune_threshold=PRUNE_THRESHOLD,
         pixel_scale=PIXEL_SCALE,
         mov_window_size=MOV_WINDOW_SIZE,
         mov_window_type=MOV_WINDOW_TYPE,
