@@ -19,9 +19,9 @@ skimage==0.0 \
 pyafmm
 
 Install the required Python packages:
-    ```sh
-    pip install -r requirements.txt
-    ```
+```sh
+pip install -r requirements.txt
+```
 
 To install the `pyafmm` module. Please follow the instructions in the `Readme.md` file located in [pyafmm](/pyafmm/) folder.
 
